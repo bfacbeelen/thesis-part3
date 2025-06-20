@@ -184,6 +184,36 @@ ggplot(cluster_long, aes(x = var, y = value, fill = cluster)) +
   labs(title = "Boxplot by Cluster", x = "Variable", y = "Value")
 
 
+# ------------------- SILHOUETTE ANALYSIS FOR CLUSTER VALIDATION -------------------
+
+library(cluster)  # for silhouette()
+
+# Compute the distance matrix (Euclidean)
+dist_matrix <- dist(cluster_vars_scaled)
+
+# Calculate silhouette scores
+sil <- silhouette(kmeans_result$cluster, dist_matrix)
+
+# Average silhouette width
+avg_sil_width <- mean(sil[, 3])
+cat("\n=== Average Silhouette Width ===\n")
+cat("Average Silhouette Width:", round(avg_sil_width, 3), "\n")
+
+# Interpret the result
+if (avg_sil_width > 0.7) {
+  cat("Interpretation: Strong clustering structure\n")
+} else if (avg_sil_width > 0.5) {
+  cat("Interpretation: Reasonable structure\n")
+} else if (avg_sil_width > 0.25) {
+  cat("Interpretation: Weak structure, consider re-evaluating number of clusters\n")
+} else {
+  cat("Interpretation: Poor clustering configuration\n")
+}
+
+# Plot silhouette diagram
+plot(sil, border = NA, col = c("#E41A1C", "#4DAF4A", "#377EB8"),
+     main = "Silhouette Plot for k-means Clustering")
+
 
 # ---- EVALUATION ----
 evaluate <- function(pred, true) {
